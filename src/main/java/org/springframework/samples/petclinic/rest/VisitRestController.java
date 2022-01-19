@@ -78,12 +78,13 @@ public class VisitRestController {
 	public ResponseEntity<Visit> addVisit(@RequestBody @Valid Visit visit, BindingResult bindingResult, UriComponentsBuilder ucBuilder){
 		BindingErrorsResponse errors = new BindingErrorsResponse();
 		HttpHeaders headers = new HttpHeaders();
-		if(bindingResult.hasErrors() || (visit == null) || (visit.getPet() == null)){
+		if(bindingResult.hasErrors() || (visit == null) || (visit.getPet() == null) || visit.getVet() == null){
 			errors.addAllErrors(bindingResult);
 			headers.add("errors", errors.toJSON());
 			return new ResponseEntity<Visit>(headers, HttpStatus.BAD_REQUEST);
 		}
-		this.clinicService.saveVisit(visit);
+		visit.setPaid(false);
+        this.clinicService.saveVisit(visit);
 		headers.setLocation(ucBuilder.path("/api/visits/{id}").buildAndExpand(visit.getId()).toUri());
 		return new ResponseEntity<Visit>(visit, headers, HttpStatus.CREATED);
 	}
@@ -105,6 +106,8 @@ public class VisitRestController {
 		currentVisit.setDate(visit.getDate());
 		currentVisit.setDescription(visit.getDescription());
 		currentVisit.setPet(visit.getPet());
+        currentVisit.setAdHoc(visit.getAdHoc());
+        currentVisit.setScheduled(visit.getScheduled());
 		this.clinicService.saveVisit(currentVisit);
 		return new ResponseEntity<Visit>(currentVisit, HttpStatus.NO_CONTENT);
 	}
@@ -120,5 +123,17 @@ public class VisitRestController {
 		this.clinicService.deleteVisit(visit);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
+
+    @PreAuthorize( "hasRole(@roles.VET_ADMIN)" )
+    @RequestMapping(value = "/{visitId}/payment", method = RequestMethod.PUT, produces = "application/json")
+    public ResponseEntity<Visit> markPaid(@PathVariable("visitId") int visitId){
+        Visit currentVisit = this.clinicService.findVisitById(visitId);
+        if(currentVisit == null){
+            return new ResponseEntity<Visit>(HttpStatus.NOT_FOUND);
+        }
+        currentVisit.setPaid(true);
+        this.clinicService.saveVisit(currentVisit);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
 }

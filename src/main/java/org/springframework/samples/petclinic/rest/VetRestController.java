@@ -28,6 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.samples.petclinic.model.Specialty;
 import org.springframework.samples.petclinic.model.Vet;
+import org.springframework.samples.petclinic.model.Visit;
 import org.springframework.samples.petclinic.service.ClinicService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
@@ -120,7 +121,11 @@ public class VetRestController {
 		if(vet == null){
 			return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
 		}
-		this.clinicService.deleteVet(vet);
+        Collection<Visit> allVisits = this.clinicService.findAllVisits();
+        for (Visit visit: allVisits){
+            if (visit.getVet().getId() == vetId) clinicService.deleteVisit(visit);
+        }
+        this.clinicService.deleteVet(vet);
 		return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
 	}
 

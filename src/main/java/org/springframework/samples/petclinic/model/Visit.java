@@ -61,6 +61,19 @@ public class Visit extends BaseEntity {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "scheduled")
+    private Boolean scheduled;
+
+    @Column(name = "ad_hoc")
+    private Boolean adHoc;
+
+    @ManyToOne
+    @JoinColumn(name = "vet_id")
+    private Vet vet;
+
+    @Column(name = "is_paid")
+    private Boolean isPaid;
+
     /**
      * Holds value of property pet.
      */
@@ -131,4 +144,35 @@ public class Visit extends BaseEntity {
         this.pet = pet;
     }
 
+    public Boolean getScheduled() {
+        return scheduled;
+    }
+
+    public void setScheduled(Boolean scheduled) {
+        this.scheduled = scheduled;
+    }
+
+    public Boolean getAdHoc() {
+        return adHoc;
+    }
+
+    public void setAdHoc(Boolean adHoc) {
+        this.adHoc = adHoc;
+    }
+
+    public Vet getVet() {
+        return vet;
+    }
+
+    public void setVet(Vet vet) {
+        this.vet = vet;
+    }
+
+    public Boolean getPaid() {
+        return isPaid;
+    }
+
+    public void setPaid(Boolean paid) {
+        isPaid = paid;
+    }
 }
